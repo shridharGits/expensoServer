@@ -30,3 +30,20 @@ exports.signIn = async (req, res) => {
     return res.status(401).json({ msg: "Invalid Email or Password" });
   }
 };
+
+exports.authenticateToken = (req, res, next) => {
+  let token = req.headers["authorization"];
+  if (token) {
+    token = token.split(" ")[1];
+    jwt.verify(token, "kreev.in", (err, valid) => {
+      if (err) {
+        return res.send("User not authenticated");
+      } else {
+        req.user = valid;
+        next();
+      }
+    });
+  } else {
+    return res.send("User not authenticated");
+  }
+};

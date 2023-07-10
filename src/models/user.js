@@ -1,9 +1,5 @@
 const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    trim: true,
-  },
   name: {
     first: {
       type: String,
@@ -24,7 +20,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
   },
   password: {
-    type: String
+    type: String,
   },
   monthlyIncome: [Map],
   rule: {
