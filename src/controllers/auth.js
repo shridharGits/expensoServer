@@ -1,11 +1,12 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const Helper = require("../utils/helper");
 
 exports.signUp = async (req, res) => {
   const user = new User(req.body);
-  const userMonthlyIncome = req.body.monthlyIncome.split(":");
-  user.monthlyIncome = new Map([[userMonthlyIncome[0], userMonthlyIncome[1]]]);
+  const monthWithYear = Helper.getMonthlWithYear();
+  user.monthlyIncome = new Map([[monthWithYear, req.body.monthlyIncome]]);
   user.password = await bcrypt.hash(user.password, 10);
   try {
     await user.save();
@@ -35,11 +36,11 @@ exports.authenticateToken = (req, res, next) => {
   let token = req.headers["authorization"];
   if (token) {
     token = token.split(" ")[1];
-    jwt.verify(token, "kreev.in", (err, valid) => {
+    jwt.verify(token, "kreev.in", (err, user) => {
       if (err) {
         return res.send("User not authenticated");
       } else {
-        req.user = valid;
+        req.user = user;
         next();
       }
     });

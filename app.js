@@ -4,6 +4,7 @@ const app = express();
 
 const authRoutes = require("./src/routes/auth");
 const invoiceRoutes = require("./src/routes/invoice");
+const userRoutes = require("./src/routes/user");
 
 mongoose
   .connect(
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", authRoutes);
 app.use("/api", invoiceRoutes);
+app.use("/api", userRoutes);
 
 // app.get("/", (req, res) => {
 //   res.send("Here we go again!");
