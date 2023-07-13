@@ -16,15 +16,19 @@ const invoiceSchema = new mongoose.Schema({
   },
   ruleTags: {
     needs: {
-      type: String,
+      type: Number,
       default: "0",
     },
     wants: {
-      type: String,
+      type: Number,
       default: "0",
     },
     saving: {
-      type: String,
+      type: Number,
+      default: "0",
+    },
+    loss: {
+      type: Number,
       default: "0",
     },
   },
@@ -34,8 +38,7 @@ const invoiceSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Helper.getCurrentDate_ddmmyyyy_Format(),
   },
 });
 
-module.exports = mongoose.Schema("Invoice", invoiceSchema);
+module.exports = mongoose.model("Invoice", invoiceSchema);

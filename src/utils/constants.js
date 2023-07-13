@@ -1,4 +1,4 @@
-const monthNames = [
+exports.monthNames = [
   "January",
   "February",
   "March",
@@ -13,6 +13,10 @@ const monthNames = [
   "December",
 ];
 
-module.exports = {
-    monthNames
+exports.PRICE = "price";
+exports.RULETAG = {
+  WANTS: "wants",
+  NEEDS: "needs",
+  SAVING: "saving",
+  LOSS: "loss",
 };
