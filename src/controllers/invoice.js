@@ -42,11 +42,10 @@ exports.updateInvoice = async (req, res) => {
   const keys = Object.keys(req.body);
   const values = Object.values(req.body);
   const invoiceId = req.params.id;
-  const invoice = await Invoice.findById(invoiceId);
-  // console.log(invoice);
-  let totalPrice = 0;
+  const invoice = await Invoice.findById({ _id: invoiceId });
   let need = 0;
   let want = 0;
+
   for (let i = 0; i < keys.length; i++) {
     if (keys[i] == Constants.RULETAG.NEEDS) {
       need = values[i];
@@ -64,6 +63,34 @@ exports.updateInvoice = async (req, res) => {
     await invoice.save();
     return res.status(202).json({ invoice });
   } catch (e) {
-    return res.status(404).json({ msg: "No Invoice To Edit" });
+    return res.status(404).json({ msg: "No Invoice Fount To Edit" });
+  }
+};
+
+exports.removeInvoice = async (req, res) => {
+  const invoiceId = req.params.id;
+  try {
+    const isInvoiceRemoved = await Invoice.findOneAndDelete({ _id: invoiceId });
+    console.log(isInvoiceRemoved);
+    return isInvoiceRemoved
+      ? res.status(200).json({ msg: "Invoice Removed Successfully" })
+      : res.staus(404).josn({ msg: "No Invoice Found To Remove" });
+  } catch (e) {
+    return res.status(404).json({ msg: "No Invoice Found To Remove" });
+  }
+};
+
+exports.getInvoice = async (req, res) => {
+  const invoiceId = req.params.id;
+  try {
+    const invoice = await Invoice.findOne({
+      _id: invoiceId,
+      userId: req.user.id,
+    });
+    return invoice
+      ? res.status(201).json({ invoice })
+      : res.staus(404).josn({ msg: "No Invoice Found To Remove" });
+  } catch (e) {
+    return res.status(404).json({ msg: "No Invoice Found" });
   }
 };

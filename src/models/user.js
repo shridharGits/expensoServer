@@ -22,23 +22,26 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
   },
-  monthlyIncome: [Map],
+  monthlyIncome: {
+    type: Map,
+    of: Number,
+  },
   rule: {
     needs: {
-      type: String,
-      default: "50",
+      type: Number,
+      default: 50,
     },
     wants: {
-      type: String,
-      default: "30",
+      type: Number,
+      default: 30,
     },
     saving: {
-      type: String,
-      default: "20",
+      type: Number,
+      default: 20,
     },
     loss: {
-      type: String,
-      default: "0",
+      type: Number,
+      default: 0,
     },
   },
 });

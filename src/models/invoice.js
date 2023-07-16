@@ -17,19 +17,19 @@ const invoiceSchema = new mongoose.Schema({
   ruleTags: {
     needs: {
       type: Number,
-      default: "0",
+      default: 0,
     },
     wants: {
       type: Number,
-      default: "0",
+      default: 0,
     },
     saving: {
       type: Number,
-      default: "0",
+      default: 0,
     },
     loss: {
       type: Number,
-      default: "0",
+      default: 0,
     },
   },
   category: {
@@ -38,6 +38,10 @@ const invoiceSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
+  },
+  isVerified: {
+    type: Boolean,
+    default: 0,
   },
 });
 

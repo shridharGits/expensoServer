@@ -1,6 +1,6 @@
 const Constants = require("./constants.js");
 
-const getMonthlWithYear = () => {
+const getMonthWithYear = () => {
   const currentDate = new Date();
   return `${
     Constants.monthNames[currentDate.getMonth()]
@@ -18,7 +18,7 @@ const isNullOrUndefined = (param) => {
   return param == null || param == undefined;
 };
 module.exports = {
-  getMonthlWithYear: getMonthlWithYear,
+  getMonthWithYear: getMonthWithYear,
   getCurrentDate_ddmmyyyy_Format,
   isNullOrUndefined,
 };

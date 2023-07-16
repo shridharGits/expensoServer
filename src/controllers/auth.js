@@ -5,7 +5,7 @@ const Helper = require("../utils/helper");
 
 exports.signUp = async (req, res) => {
   const user = new User(req.body);
-  const monthWithYear = Helper.getMonthlWithYear();
+  const monthWithYear = Helper.getMonthWithYear();
   user.monthlyIncome = new Map([[monthWithYear, req.body.monthlyIncome]]);
   user.password = await bcrypt.hash(user.password, 10);
   try {
@@ -19,7 +19,7 @@ exports.signUp = async (req, res) => {
 
 exports.signIn = async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email: email });
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
   }
