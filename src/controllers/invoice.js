@@ -45,7 +45,7 @@ exports.updateInvoice = async (req, res) => {
   const invoice = await Invoice.findById({ _id: invoiceId });
   let need = 0;
   let want = 0;
-
+ 
   for (let i = 0; i < keys.length; i++) {
     if (keys[i] == Constants.RULETAG.NEEDS) {
       need = values[i];
