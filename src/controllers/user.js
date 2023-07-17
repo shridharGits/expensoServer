@@ -1,9 +1,9 @@
-const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const Constants = require("../utils/constants");
 const Helper = require("../utils/helper");
+
 exports.getUserById = async (req, res) => {
-  const userId = req?.suer?.id;
+  const userId = req?.user?.id;
   try {
     const user = await User.findById({ _id: userId });
     if (user) {
@@ -23,17 +23,26 @@ exports.updateUser = async (req, res) => {
   let needs, wants, saving;
   // add a check in frontend, total should be 100;
   for (let i = 0; i < keys.length; i++) {
-    if (keys[i] == Constants.RULETAG.NEEDS) {
-      needs = values[i];
-    } else if (keys[i] == Constants.RULETAG.WANTS) {
-      wants = values[i];
-    } else if (keys[i] == Constants.RULETAG.SAVING) {
-      saving = values[i];
-    } else if (keys[i] == "first") {
-      user.name.first = values[i];
-    } else if (keys[i] == "last") {
-      user.name.last = values[i];
-    } else user[keys[i]] = values[i];
+    switch (keys[i]) {
+      case Constants.RULETAG.NEEDS:
+        needs = values[i];
+        break;
+      case Constants.RULETAG.WANTS:
+        wants = values[i];
+        break;
+      case Constants.RULETAG.SAVING:
+        saving = values[i];
+        break;
+      case "first":
+        user.name.first = values[i];
+        break;
+      case "last":
+        user.name.last = values[i];
+        break;
+      default:
+        user[keys[i]] = values[i];
+        break;
+    }
   }
   if (needs + wants + saving == 100) {
     user.rule.needs = needs;

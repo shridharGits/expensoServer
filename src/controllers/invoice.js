@@ -1,20 +1,23 @@
-const Helper = require("../utils/helper");
 const Constants = require("../utils/constants.js");
 const Invoice = require("../models/invoice");
-const { default: mongoose } = require("mongoose");
+const User = require("../models/user.js");
+const Helper = require("../utils/helper.js");
 
-exports.getAllInvoices = async (req, res) => {
+exports.getInvoice = async (req, res) => {
+  const invoiceId = req.params.id;
+  const userId = req.params.id;
   try {
-    const invoices = await Invoice.find({ userId: req.user.id });
-    if (!invoices) {
-      return res.status(404).json({ msg: "No Invoices" });
-    } else {
-      return res.status(200).json({ invoices });
-    }
+    const invoice = await Invoice.findOne({
+      _id: invoiceId,
+      userId,
+    });
+    return invoice
+      ? res.status(201).json({ invoice })
+      : res.status(403).json({ msg: "Not Authorized" });
   } catch (e) {
-    return res.status(404).json({ msg: "No Invoices" });
+    console.log(e.message);
+    return res.status(404).json({ msg: "No Invoice Found" });
   }
-  return res.status(200).send(`December: ${JSON.stringify(req.user)}`);
 };
 
 exports.addInvoice = async (req, res) => {
@@ -24,13 +27,11 @@ exports.addInvoice = async (req, res) => {
   const { needs, wants } = req.body;
   try {
     const invoice = new Invoice(req.body);
-    console.log(invoice);
     invoice.price = (needs || 0) + (wants || 0);
     invoice.ruleTags.needs = needs || 0;
     invoice.ruleTags.wants = wants || 0;
     invoice.userId = req.user.id;
-    invoice.date = Date.now();
-    console.log("TotalPrice", invoice);
+    invoice.date = new Date();
     await invoice.save();
     return res.status(201).json({ invoice });
   } catch (e) {
@@ -42,10 +43,11 @@ exports.updateInvoice = async (req, res) => {
   const keys = Object.keys(req.body);
   const values = Object.values(req.body);
   const invoiceId = req.params.id;
-  const invoice = await Invoice.findById({ _id: invoiceId });
+  const userId = req.params.id;
+  const invoice = await Invoice.findById({ _id: invoiceId, userId });
   let need = 0;
   let want = 0;
- 
+
   for (let i = 0; i < keys.length; i++) {
     if (keys[i] == Constants.RULETAG.NEEDS) {
       need = values[i];
@@ -69,28 +71,89 @@ exports.updateInvoice = async (req, res) => {
 
 exports.removeInvoice = async (req, res) => {
   const invoiceId = req.params.id;
+  const userId = req.params.id;
   try {
-    const isInvoiceRemoved = await Invoice.findOneAndDelete({ _id: invoiceId });
-    console.log(isInvoiceRemoved);
+    const isInvoiceRemoved = await Invoice.findOneAndDelete({
+      _id: invoiceId,
+      userId,
+    });
     return isInvoiceRemoved
       ? res.status(200).json({ msg: "Invoice Removed Successfully" })
-      : res.staus(404).josn({ msg: "No Invoice Found To Remove" });
+      : res.status(404).json({ msg: "No Invoice Found To Remove" });
   } catch (e) {
     return res.status(404).json({ msg: "No Invoice Found To Remove" });
   }
 };
 
-exports.getInvoice = async (req, res) => {
-  const invoiceId = req.params.id;
+exports.getAllInvoices = async (req, res) => {
+  const userId = req.params.id;
   try {
-    const invoice = await Invoice.findOne({
-      _id: invoiceId,
-      userId: req.user.id,
-    });
-    return invoice
-      ? res.status(201).json({ invoice })
-      : res.staus(404).josn({ msg: "No Invoice Found To Remove" });
+    const invoices = await Invoice.find({ userId });
+    if (!invoices) {
+      return res.status(404).json({ msg: "No Invoices" });
+    } else {
+      return res.status(200).json({ invoices });
+    }
   } catch (e) {
-    return res.status(404).json({ msg: "No Invoice Found" });
+    return res.status(404).json({ msg: "No Invoices" });
+  }
+};
+
+exports.getMonthlyStatistics = async (req, res) => {
+  // 1. get user by req.user.id, extract his rule, monthlyIncome
+  // 2. get all users transactions where day is specified and and has wants and needs
+  // 3. send date in yyyy-mm-dd format
+  // console.log(new Date(new Date().toString()));
+  const userId = req.user.id;
+  const today = new Date(req.body.today ?? new Date());
+  const yesterday = new Date(req.body.yesterday ?? today);
+  const isMonthlyStat = req.body.monthlyStats;
+  if (isMonthlyStat) {
+    yesterday.setDate(yesterday.getDate() - 1);
+  } else {
+    yesterday.setDate(1);
+  }
+  const isMonth31 = Helper.isMonth31(
+    Constants.monthNames[today.getMonth() + 1]
+  );
+  try {
+    const user = await User.findById({ _id: userId });
+    const invoices = await Invoice.find({
+      userId,
+      createdAt: {
+        $gte: yesterday,
+        $lte: today,
+      },
+    });
+    if (user && invoices.length > 0) {
+      const monthlyMultiplier = isMonthlyStat ? (isMonth31 ? 31 : 30) : 1;
+      const dailyBudget =
+        (monthlyMultiplier * [...user.monthlyIncome].pop()[1]) /
+        (isMonth31 ? 31 : 30);
+
+      let dailyTotalWants = 0,
+        dailyTotalNeeds = 0;
+      for (let i = 0; i < invoices.length; i++) {
+        dailyTotalNeeds += invoices[i].ruleTags.needs;
+        dailyTotalWants += invoices[i].ruleTags.wants;
+      }
+
+      const needsLeft = dailyBudget * (user.rule.needs / 100) - dailyTotalWants;
+      const wantsLeft = dailyBudget * (user.rule.wants / 100) - dailyTotalNeeds;
+      const savingsDone = dailyBudget - (needsLeft + wantsLeft);
+
+      const dailyBudgetStats = {
+        needsLeft,
+        wantsLeft,
+        savingsDone,
+      };
+      return res.status(200).json({ dailyBudgetStats });
+    } else {
+      return res.status(404).json({ msg: `something went wrong` });
+    }
+  } catch (e) {
+    return res
+      .status(404)
+      .json({ msg: `such user or invoices doesn't exists` });
   }
 };

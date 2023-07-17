@@ -20,3 +20,15 @@ exports.RULETAG = {
   SAVING: "saving",
   LOSS: "loss",
 };
+
+exports.MONTHSWITH31DAYS = [
+  "January",
+  "March",
+  "May",
+  "July",
+  "August",
+  "October",
+  "December",
+];
+
+exports.MONTHSWITH30DAYS = ["April", "June", "September", "November"];
