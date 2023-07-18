@@ -5,8 +5,10 @@ const Helper = require("../utils/helper");
 
 exports.signUp = async (req, res) => {
   const user = new User(req.body);
-  const monthWithYear = Helper.getMonthWithYear();
-  user.monthlyIncome = new Map([[monthWithYear, req.body.monthlyIncome]]);
+  const today = new Date();
+  user.monthlyIncome = new Map([
+    [`${today.getMonth() + 1}-${today.getFullYear()}`, req.body.monthlyIncome],
+  ]);
   user.password = await bcrypt.hash(user.password, 10);
   try {
     await user.save();

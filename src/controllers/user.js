@@ -66,7 +66,11 @@ exports.addMontlyIncome = async (req, res) => {
   const monthlyIncome = req.body.monthlyIncome;
   try {
     const user = await User.findById({ _id: userId });
-    user.monthlyIncome.set(Helper.getMonthWithYear(), monthlyIncome);
+    const today = new Date();
+    user.monthlyIncome.set(
+      `${today.getMonth() + 1}-${today.getFullYear()}`,
+      monthlyIncome
+    );
     await user.save();
   } catch (e) {
     return res.status(501).json({ msg: "Server Error" });

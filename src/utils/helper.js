@@ -22,9 +22,26 @@ const isMonth31 = (month) => {
   return Constants.MONTHSWITH31DAYS.indexOf(month) > -1 ? true : false;
 };
 
+const getNumberOfDaysInMonth = (month, year) => {
+  return month == 2
+    ? year % 4 == 0
+      ? 29
+      : 28
+    : Constants.MONTHSWITH31DAYS.indexOf(Constants.monthNames[month - 1]) > -1
+    ? 31
+    : 30;
+  // if (month == 2) {
+  //   return year % 4 == 0 ? 29 : 28;
+  // }
+  // return Constants.MONTHSWITH31DAYS.indexOf(month) > -1
+  // ? 31
+  // : 30;
+};
+
 module.exports = {
   getMonthWithYear: getMonthWithYear,
   getCurrentDate_ddmmyyyy_Format,
   isNullOrUndefined,
-  isMonth31
+  isMonth31,
+  getNumberOfDaysInMonth,
 };

@@ -99,37 +99,31 @@ exports.getAllInvoices = async (req, res) => {
   }
 };
 
-exports.getMonthlyStatistics = async (req, res) => {
+exports.getRuleStatistics = async (req, res) => {
   // 1. get user by req.user.id, extract his rule, monthlyIncome
   // 2. get all users transactions where day is specified and and has wants and needs
   // 3. send date in yyyy-mm-dd format
   // console.log(new Date(new Date().toString()));
   const userId = req.user.id;
-  const today = new Date(req.body.today ?? new Date());
-  const yesterday = new Date(req.body.yesterday ?? today);
-  const isMonthlyStat = req.body.monthlyStats;
-  if (isMonthlyStat) {
-    yesterday.setDate(yesterday.getDate() - 1);
-  } else {
-    yesterday.setDate(1);
-  }
-  const isMonth31 = Helper.isMonth31(
-    Constants.monthNames[today.getMonth() + 1]
-  );
+  const toDay = new Date(req.body.toDay ?? new Date());
+  const fromDay = new Date(req.body.fromDay ?? toDay);
+  fromDay.setDate(fromDay.getDate() - 1);
   try {
     const user = await User.findById({ _id: userId });
     const invoices = await Invoice.find({
       userId,
-      createdAt: {
-        $gte: yesterday,
-        $lte: today,
+      date: {
+        $gte: fromDay,
+        $lte: toDay,
       },
     });
     if (user && invoices.length > 0) {
-      const monthlyMultiplier = isMonthlyStat ? (isMonth31 ? 31 : 30) : 1;
+      const numberOfDaysInMonth = Helper.getNumberOfDaysInMonth(
+        toDay.getMonth() + 1,
+        toDay.getFullYear()
+      );
       const dailyBudget =
-        (monthlyMultiplier * [...user.monthlyIncome].pop()[1]) /
-        (isMonth31 ? 31 : 30);
+        [...user.monthlyIncome].pop()[1] / numberOfDaysInMonth;
 
       let dailyTotalWants = 0,
         dailyTotalNeeds = 0;
@@ -147,6 +141,7 @@ exports.getMonthlyStatistics = async (req, res) => {
         wantsLeft,
         savingsDone,
       };
+      // return res.status(200).json({ dailyBudgetStats });
       return res.status(200).json({ dailyBudgetStats });
     } else {
       return res.status(404).json({ msg: `something went wrong` });
