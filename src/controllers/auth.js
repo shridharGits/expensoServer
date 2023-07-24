@@ -10,10 +10,15 @@ exports.signUp = async (req, res) => {
     [`${today.getMonth() + 1}-${today.getFullYear()}`, req.body.monthlyIncome],
   ]);
   user.password = await bcrypt.hash(user.password, 10);
+  user.name.first = req.body.firstname;
+  user.name.last = req.body.lastname;
+  user.rule.needs = req.body.needs;
+  user.rule.wants = req.body.wants;
+  user.rule.saving = req.body.saving;
   try {
     await user.save();
     user.password = undefined;
-    return res.status(201).json({ msg: user });
+    return res.status(201).json({ user });
   } catch (e) {
     return res.status(409).json({ msg: "Email already exists!" });
   }
@@ -40,13 +45,13 @@ exports.authenticateToken = (req, res, next) => {
     token = token.split(" ")[1];
     jwt.verify(token, "kreev.in", (err, user) => {
       if (err) {
-        return res.send("User not authenticated");
+        return res.status(401).send("User not authenticated");
       } else {
         req.user = user;
         next();
       }
     });
   } else {
-    return res.send("User not authenticated");
+    return res.status(401).send("User not authenticated");
   }
 };

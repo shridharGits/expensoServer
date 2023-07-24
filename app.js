@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
-
+const cors = require("cors");
 const authRoutes = require("./src/routes/auth");
 const invoiceRoutes = require("./src/routes/invoice");
 const userRoutes = require("./src/routes/user");
@@ -18,8 +18,9 @@ mongoose
     console.log(e);
   });
 
-const PORT = 3000;
+const PORT = 4000;
 
+app.use(cors());
 app.use(express.json()); // tells express we are going to receive data in json format from req.body f
 app.use(express.urlencoded({ extended: true }));
 
