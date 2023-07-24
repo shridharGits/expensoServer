@@ -108,14 +108,25 @@ exports.getRuleStatistics = async (req, res) => {
   const toDay = new Date(req.body.toDay ?? new Date());
   const fromDay = new Date(req.body.fromDay ?? toDay);
   fromDay.setDate(fromDay.getDate() - 1);
+
   try {
     const user = await User.findById({ _id: userId });
     const invoices = await Invoice.find({
       userId,
-      date: {
-        $gte: fromDay,
-        $lte: toDay,
-      },
+      $or: [
+        {
+          createdAt: {
+            $gte: fromDay,
+            $lte: toDay,
+          },
+        },
+        {
+          date: {
+            $gte: fromDay,
+            $lte: toDay,
+          },
+        },
+      ],
     });
     if (user && invoices.length > 0) {
       const numberOfDaysInMonth = Helper.getNumberOfDaysInMonth(
@@ -140,6 +151,7 @@ exports.getRuleStatistics = async (req, res) => {
         needsLeft,
         wantsLeft,
         savingsDone,
+        invoices,
       };
       // return res.status(200).json({ dailyBudgetStats });
       return res.status(200).json({ dailyBudgetStats });
