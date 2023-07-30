@@ -27,15 +27,15 @@ exports.addInvoice = async (req, res) => {
   const { needs, wants } = req.body;
   try {
     const invoice = new Invoice(req.body);
-    invoice.price = (needs || 0) + (wants || 0);
-    invoice.ruleTags.needs = needs || 0;
-    invoice.ruleTags.wants = wants || 0;
+    invoice.price = (parseFloat(needs) || 0) + (parseFloat(wants) || 0);
+    invoice.ruleTags.needs = parseFloat(needs) || 0;
+    invoice.ruleTags.wants = parseFloat(wants) || 0;
     invoice.userId = req.user.id;
-    invoice.date = new Date();
+    invoice.date = new Date(req.body.expenseDate);
     await invoice.save();
     return res.status(201).json({ invoice });
   } catch (e) {
-    return res.status(500).json({ msg: "Something Went Wrong" });
+    return res.status(500).json({ msg: e.message });
   }
 };
 
@@ -57,9 +57,9 @@ exports.updateInvoice = async (req, res) => {
   }
 
   if (need || want) {
-    invoice.ruleTags.needs = need || 0;
-    invoice.ruleTags.wants = want || 0;
-    invoice.price = (need || 0) + (want || 0);
+    invoice.ruleTags.needs = parseFloat(need) || 0;
+    invoice.ruleTags.wants = parseFloat(want) || 0;
+    invoice.price = (parseInt(need) || 0) + (parseFloat(want) || 0);
   }
   try {
     await invoice.save();
@@ -128,7 +128,7 @@ exports.getRuleStatistics = async (req, res) => {
         },
       ],
     });
-    if (user && invoices.length > 0) {
+    if (user) {
       const numberOfDaysInMonth = Helper.getNumberOfDaysInMonth(
         toDay.getMonth() + 1,
         toDay.getFullYear()
