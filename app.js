@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
@@ -7,10 +8,7 @@ const invoiceRoutes = require("./src/routes/invoice");
 const userRoutes = require("./src/routes/user");
 
 mongoose
-  .connect(
-    "mongodb://localhost:27017"
-    // "mongodb+srv://shridhar:OCPCHqrLx8a4UDhz@cluster0.xt2hg3o.mongodb.net/"
-  )
+  .connect(process.env.DATABASE_URL)
   .then(() => {
     console.log("DB CONNECTED");
   })
@@ -18,7 +16,7 @@ mongoose
     console.log(e);
   });
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json()); // tells express we are going to receive data in json format from req.body f

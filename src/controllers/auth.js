@@ -1,3 +1,4 @@
+require("dotenv").config();
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
@@ -43,7 +44,7 @@ exports.authenticateToken = (req, res, next) => {
   let token = req.headers["authorization"];
   if (token) {
     token = token.split(" ")[1];
-    jwt.verify(token, "kreev.in", (err, user) => {
+    jwt.verify(token, process.env.SECRENT_KEY, (err, user) => {
       if (err) {
         return res.status(401).send("User not authenticated");
       } else {
