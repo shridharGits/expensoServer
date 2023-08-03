@@ -5,7 +5,7 @@ const Helper = require("../utils/helper.js");
 
 exports.getInvoice = async (req, res) => {
   const invoiceId = req.params.id;
-  const userId = req.params.id;
+  const userId = req.user.id;
   try {
     const invoice = await Invoice.findOne({
       _id: invoiceId,
@@ -43,7 +43,7 @@ exports.updateInvoice = async (req, res) => {
   const keys = Object.keys(req.body);
   const values = Object.values(req.body);
   const invoiceId = req.params.id;
-  const userId = req.params.id;
+  const userId = req.user.id;
   const invoice = await Invoice.findById({ _id: invoiceId, userId });
   let need = 0;
   let want = 0;
