@@ -26,9 +26,9 @@ app.use("/api", authRoutes);
 app.use("/api", invoiceRoutes);
 app.use("/api", userRoutes);
 
-// app.get("/", (req, res) => {
-//   res.send("Here we go again!");
-// });
+app.get("/", (req, res) => {
+  res.send("Here we go again!");
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
