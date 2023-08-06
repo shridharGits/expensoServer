@@ -8,7 +8,10 @@ const invoiceRoutes = require("./src/routes/invoice");
 const userRoutes = require("./src/routes/user");
 
 mongoose
-  .connect(process.env.DATABASE_URL)
+  .connect(process.env.DATABASE_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("DB CONNECTED");
   })
