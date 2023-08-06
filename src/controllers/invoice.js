@@ -71,7 +71,7 @@ exports.updateInvoice = async (req, res) => {
 
 exports.removeInvoice = async (req, res) => {
   const invoiceId = req.params.id;
-  const userId = req.params.id;
+  const userId = req.user.id;
   try {
     const isInvoiceRemoved = await Invoice.findOneAndDelete({
       _id: invoiceId,
@@ -143,9 +143,9 @@ exports.getRuleStatistics = async (req, res) => {
         dailyTotalWants += invoices[i].ruleTags.wants;
       }
 
-      const needsLeft = dailyBudget * (user.rule.needs / 100) - dailyTotalWants;
-      const wantsLeft = dailyBudget * (user.rule.wants / 100) - dailyTotalNeeds;
-      const savingsDone = dailyBudget - (needsLeft + wantsLeft);
+      const needsLeft = dailyBudget * (user.rule.needs / 100) - dailyTotalNeeds;
+      const wantsLeft = dailyBudget * (user.rule.wants / 100) - dailyTotalWants;
+      const savingsDone = dailyBudget - dailyTotalNeeds - dailyTotalWants;
 
       const dailyBudgetStats = {
         needsLeft,
@@ -153,7 +153,7 @@ exports.getRuleStatistics = async (req, res) => {
         savingsDone,
         invoices,
       };
-      // return res.status(200).json({ dailyBudgetStats });
+
       return res.status(200).json({ dailyBudgetStats });
     } else {
       return res.status(404).json({ msg: `something went wrong` });
