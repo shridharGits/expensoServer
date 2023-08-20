@@ -27,6 +27,7 @@ exports.signUp = async (req, res) => {
 
 exports.signIn = async (req, res) => {
   const { email, password } = req.body;
+  console.log(req.body);
   const user = await User.findOne({ email: email });
   if (!user) {
     return res.status(404).json({ msg: "User not found" });
@@ -34,8 +35,10 @@ exports.signIn = async (req, res) => {
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (isPasswordValid) {
     const token = jwt.sign({ id: user._id, email: user.email }, "kreev.in");
+    console.log("login successful");
     return res.status(200).json({ token });
   } else {
+    console.log("Invalid Email or Password");
     return res.status(401).json({ msg: "Invalid Email or Password" });
   }
 };
