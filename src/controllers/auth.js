@@ -49,6 +49,7 @@ exports.authenticateToken = (req, res, next) => {
     token = token.split(" ")[1];
     jwt.verify(token, process.env.SECRENT_KEY, (err, user) => {
       if (err) {
+        console.log(err);
         return res.status(401).send("User not authenticated");
       } else {
         req.user = user;
